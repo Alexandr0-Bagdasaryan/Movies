@@ -20,6 +20,10 @@ import java.util.List;
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewHolder> {
 
 
+    private static final String TYPE_POSITIVE="Позитивный";
+    private static final String TYPE_NEGATIVE="Негативный";
+
+
     private List<Review> reviews = new ArrayList<>();
 
     public void setReviews(List<Review> reviews) {
@@ -42,17 +46,18 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewHold
         holder.textViewReview.setText(review.getReview());
         holder.textViewTitle.setText(review.getTitle());
         holder.textViewType.setText(review.getType());
+        int colorResId= android.R.color.holo_orange_dark;
         switch (review.getType()) {
-            case "Негативный":
-                holder.cardView.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.holo_red_light));
+            case TYPE_NEGATIVE:
+                colorResId=android.R.color.holo_red_light;
                 break;
-            case "Позитивный":
-                holder.cardView.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.holo_green_light));
-                break;
-            default:
-                holder.cardView.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.holo_orange_light));
+            case TYPE_POSITIVE:
+                colorResId= android.R.color.holo_green_light;
                 break;
         }
+        holder.cardView.setCardBackgroundColor(ContextCompat.getColor(
+                holder.itemView.getContext(),
+                colorResId));
     }
 
     @Override
@@ -74,7 +79,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewHold
             textViewAuthor = itemView.findViewById(R.id.textViewAuthor);
             textViewTitle = itemView.findViewById(R.id.textViewTitle);
             textViewReview = itemView.findViewById(R.id.textViewReview);
-            textViewType=itemView.findViewById(R.id.textViewType);
+            textViewType = itemView.findViewById(R.id.textViewType);
         }
     }
 
