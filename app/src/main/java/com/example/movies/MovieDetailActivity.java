@@ -25,6 +25,8 @@ import com.example.movies.adapter.ReviewAdapter;
 import com.example.movies.adapter.TrailerAdapter;
 import com.example.movies.api.ApiFactory;
 import com.example.movies.api.ApiService;
+import com.example.movies.database.MovieDao;
+import com.example.movies.database.MovieDatabase;
 import com.example.movies.model.Movie;
 import com.example.movies.model.Poster;
 import com.example.movies.model.Review;
@@ -60,11 +62,16 @@ public class MovieDetailActivity extends AppCompatActivity {
     private ReviewAdapter reviewAdapter;
     private MovieDetailViewModel movieDetailViewModel;
 
+    private MovieDatabase movieDatabase;
+    private MovieDao movieDao;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
         initViews();
+        movieDatabase=MovieDatabase.getInstance(getApplication());
+        movieDao=movieDatabase.movieDao();
         trailerAdapter = new TrailerAdapter();
         rvTrailers.setAdapter(trailerAdapter);
         reviewAdapter= new ReviewAdapter();
@@ -98,6 +105,9 @@ public class MovieDetailActivity extends AppCompatActivity {
             movieDetailViewModel.loadTrailers(movie.getId());
             movieDetailViewModel.loadReviews(movie.getId());
             Handler handler = new Handler(Looper.getMainLooper());
+            movieDao.addMovieToFavorite(movie).subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe();
         }
     }
 
