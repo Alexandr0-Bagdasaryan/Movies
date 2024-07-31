@@ -104,7 +104,6 @@ public class MovieDetailActivity extends AppCompatActivity {
             setMovieInfo(movie);
             movieDetailViewModel.loadTrailers(movie.getId());
             movieDetailViewModel.loadReviews(movie.getId());
-            Handler handler = new Handler(Looper.getMainLooper());
             movieDao.addMovieToFavorite(movie).subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe();

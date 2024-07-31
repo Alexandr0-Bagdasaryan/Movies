@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import com.example.movies.model.Movie;
@@ -22,7 +23,7 @@ public interface MovieDao {
     @Query("SELECT * FROM favouriteMovies WHERE id=:movieId")
     LiveData<Movie> getFavoriteMovie(int movieId);
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     Completable addMovieToFavorite(Movie movie);
 
     @Query("DELETE FROM favouriteMovies WHERE id=:movieID")
