@@ -10,6 +10,9 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.movies.api.ApiFactory;
+import com.example.movies.database.MovieDao;
+import com.example.movies.database.MovieDatabase;
+import com.example.movies.model.Movie;
 import com.example.movies.model.Review;
 import com.example.movies.model.ReviewResponse;
 import com.example.movies.model.Trailer;
@@ -31,6 +34,8 @@ public class MovieDetailViewModel extends AndroidViewModel {
 
     private static final String TAG = "MovieDetailViewModel";
 
+    private final MovieDao movieDao;
+
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     private MutableLiveData<List<Trailer>> trailers = new MutableLiveData<List<Trailer>>();
@@ -47,7 +52,30 @@ public class MovieDetailViewModel extends AndroidViewModel {
 
     public MovieDetailViewModel(@NonNull Application application) {
         super(application);
+         movieDao = MovieDatabase.getInstance(application).movieDao();
     }
+
+    public LiveData<Movie> getFavoriteMovie(int movieId){
+        return movieDao.getFavoriteMovie(movieId);
+    }
+
+
+    public void insertMovie(Movie movie){
+        Disposable disposable = movieDao.addMovieToFavorite(movie)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
+        compositeDisposable.add(disposable);
+    }
+
+    public void removeMovie(int movieId){
+        Disposable disposable = movieDao.removeMovieFromFavorite(movieId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
+        compositeDisposable.add(disposable);
+    }
+
 
     public void loadTrailers(int idFilm) {
         Disposable disposable = ApiFactory.apiService.loadTrailers(idFilm)

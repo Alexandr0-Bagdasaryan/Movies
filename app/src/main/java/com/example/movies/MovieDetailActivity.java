@@ -2,16 +2,19 @@ package com.example.movies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -46,11 +49,12 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class MovieDetailActivity extends AppCompatActivity {
 
-    private static final String TAG="MovieDetailActivity";
+    private static final String TAG = "MovieDetailActivity";
 
     private static final String EXTRA_MOVIE = "movie";
 
     private ImageView imageViewPoster;
+    private ImageView imageViewFavorite;
     private TextView textViewTitle;
     private TextView textViewYear;
     private TextView textViewDescription;
@@ -70,24 +74,22 @@ public class MovieDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
         initViews();
-        movieDatabase=MovieDatabase.getInstance(getApplication());
-        movieDao=movieDatabase.movieDao();
         trailerAdapter = new TrailerAdapter();
         rvTrailers.setAdapter(trailerAdapter);
-        reviewAdapter= new ReviewAdapter();
+        reviewAdapter = new ReviewAdapter();
         rvReviews.setAdapter(reviewAdapter);
-        movieDetailViewModel=new ViewModelProvider(this).get(MovieDetailViewModel.class);
+        movieDetailViewModel = new ViewModelProvider(this).get(MovieDetailViewModel.class);
         movieDetailViewModel.getTrailers().observe(this, new Observer<List<Trailer>>() {
             @Override
             public void onChanged(List<Trailer> trailers) {
-                Log.d(TAG,"GOT TRAILERS \n"+trailers.toString());
+                Log.d(TAG, "GOT TRAILERS \n" + trailers.toString());
                 trailerAdapter.setTrailers(trailers);
             }
         });
         movieDetailViewModel.getReviews().observe(this, new Observer<List<Review>>() {
             @Override
             public void onChanged(List<Review> reviews) {
-                Log.d(TAG,""+reviews.size());
+                Log.d(TAG, "" + reviews.size());
                 reviewAdapter.setReviews(reviews);
             }
         });
@@ -99,14 +101,35 @@ public class MovieDetailActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        Drawable starrOff = ContextCompat.getDrawable(MovieDetailActivity.this, android.R.drawable.btn_star_big_off);
+        Drawable starrOn = ContextCompat.getDrawable(MovieDetailActivity.this, android.R.drawable.btn_star_big_on);
         Movie movie = (Movie) getIntent().getSerializableExtra(EXTRA_MOVIE);
         if (movie != null) {
             setMovieInfo(movie);
             movieDetailViewModel.loadTrailers(movie.getId());
             movieDetailViewModel.loadReviews(movie.getId());
-            movieDao.addMovieToFavorite(movie).subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe();
+            movieDetailViewModel.getFavoriteMovie(movie.getId()).observe(this, new Observer<Movie>() {
+                @Override
+                public void onChanged(Movie movieFromDb) {
+                    if (movieFromDb == null) {
+                        imageViewFavorite.setImageDrawable(starrOff);
+                        imageViewFavorite.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                movieDetailViewModel.insertMovie(movie);
+                            }
+                        });
+                    } else {
+                        imageViewFavorite.setImageDrawable(starrOn);
+                        imageViewFavorite.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                movieDetailViewModel.removeMovie(movie.getId());
+                            }
+                        });
+                    }
+                }
+            });
         }
     }
 
@@ -129,8 +152,9 @@ public class MovieDetailActivity extends AppCompatActivity {
 
 
     private void initViews() {
-        rvReviews=findViewById(R.id.rvReviews);
-        rvTrailers=findViewById(R.id.rvTrailers);
+        imageViewFavorite = findViewById(R.id.imageViewFavorite);
+        rvReviews = findViewById(R.id.rvReviews);
+        rvTrailers = findViewById(R.id.rvTrailers);
         imageViewPoster = findViewById(R.id.imageViewPoster);
         textViewTitle = findViewById(R.id.textViewTitle);
         textViewYear = findViewById(R.id.textViewYear);

@@ -22,6 +22,17 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@tools:sample/avatars" />
 
+
+        <ImageView
+            android:id="@+id/imageViewFavorite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imageViewPoster"
+            app:layout_constraintBottom_toBottomOf="@id/imageViewPoster"
+            tools:src="@android:drawable/btn_star_big_off"
+            android:layout_margin="16dp"/>
+
         <TextView
             android:id="@+id/textViewTitle"
             android:layout_width="match_parent"
