@@ -39,13 +39,17 @@ public class FavoriteMovieActivity extends AppCompatActivity {
         moviesAdapter.setOnMovieClickListener(new MoviesAdapter.OnMovieClickListner() {
             @Override
             public void onMovieClick(Movie movie) {
-                Intent intent = MovieDetailActivity.newIntent(FavoriteMovieActivity.this,movie);
+                Intent intent = MovieDetailActivity.newIntent(
+                        FavoriteMovieActivity.this,
+                        movie);
                 startActivity(intent);
             }
         });
-        recyclerViewFavoriteMovies.setLayoutManager(new GridLayoutManager(this, 2));
+        recyclerViewFavoriteMovies.setLayoutManager(new GridLayoutManager(this,
+                2));
         favoriteMovieViewModel=new ViewModelProvider(this).get(FavoriteMovieViewModel.class);
-        favoriteMovieViewModel.loadFavoriteMovies().observe(this, new Observer<List<Movie>>() {
+        favoriteMovieViewModel.loadFavoriteMovies().observe(this,
+                new Observer<List<Movie>>() {
             @Override
             public void onChanged(List<Movie> movies) {
                 moviesAdapter.setMovies(movies);
